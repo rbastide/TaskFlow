@@ -84,16 +84,48 @@ fun TaskListScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(filteredTasks) { task ->
-                    Card(modifier = Modifier.fillMaxWidth().clickable { onEditTaskClick(task) }) {
+                    val isLate = !task.isDone && task.dueDate.isNotBlank() // Simulation de retard
+                    var showDialog by remember { mutableStateOf(false) }
+
+                    if (showDialog) {
+                        if (showDialog) {
+                            AlertDialog(
+                                onDismissRequest = { showDialog = false },
+                                title = { Text("🎉 Bien joué !") },
+                                text = { Text("Tâche accomplie avec succès") },
+                                confirmButton = {
+                                    Button(onClick = { showDialog = false }) { Text("Continuer") }
+                                }
+                            )
+                        }
+                    }
+
+                    Card(
+                        modifier = Modifier.fillMaxWidth().clickable { onEditTaskClick(task) },
+                        border = if (isLate) androidx.compose.foundation.BorderStroke(1.dp, Color.Red) else null
+                    ) {
                         Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                            Checkbox(checked = task.isDone, onCheckedChange = { onTaskCheckedChange(task, it) })
+                            Checkbox(
+                                checked = task.isDone,
+                                onCheckedChange = { isChecked ->
+                                    onTaskCheckedChange(task, isChecked)
+                                    if (isChecked) showDialog = true
+                                }
+                            )
                             Column(modifier = Modifier.padding(start = 8.dp)) {
                                 Text(task.title, style = MaterialTheme.typography.titleMedium, textDecoration = if (task.isDone) TextDecoration.LineThrough else null)
                                 if (task.description.isNotBlank()) {
                                     Text(task.description, style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
                                 }
-                                Surface(color = MaterialTheme.colorScheme.secondaryContainer, shape = MaterialTheme.shapes.small) {
-                                    Text(task.priority, modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp), style = MaterialTheme.typography.labelSmall)
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 4.dp)) {
+                                    if (isLate) {
+                                        Surface(color = Color(0xFFFFEBEE), shape = MaterialTheme.shapes.small) {
+                                            Text("⏰ ${task.dueDate}", color = Color.Red, modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp), style = MaterialTheme.typography.labelSmall)
+                                        }
+                                    }
+                                    Surface(color = MaterialTheme.colorScheme.secondaryContainer, shape = MaterialTheme.shapes.small) {
+                                        Text(task.priority, modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp), style = MaterialTheme.typography.labelSmall)
+                                    }
                                 }
                             }
                         }
