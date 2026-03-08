@@ -2,6 +2,7 @@ package com.example.taskflow
 
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -10,9 +11,12 @@ import kotlinx.coroutines.flow.flow
 @Composable
 fun AppNavigation(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
-    val tasks = remember { mutableStateListOf<Task>() }
 
-    var flowCoins by remember { mutableStateOf(50) }
+    val context = LocalContext.current
+    val dataManager = remember { DataManager(context) }
+
+    val tasks = remember { mutableStateListOf<Task>().apply { addAll(dataManager.getTasks())}}
+    var flowCoins by remember { mutableStateOf(dataManager.getFlowCoins()) }
 
     NavHost(navController = navController, startDestination = "taskList", modifier = modifier) {
 
@@ -26,13 +30,16 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                     val index = tasks.indexOfFirst { it.id == task.id }
                     if (index != -1) {
                         tasks[index] = tasks[index].copy(isDone = isChecked)
+                        dataManager.saveTasks(tasks)
                         if (isChecked) {
                             flowCoins += 10
+                            dataManager.saveFlowCoins(flowCoins)
                         }
                     }
                 },
                 onPurgeTasks = {
                     tasks.removeAll { it.isDone }
+                    dataManager.saveTasks(tasks)
                 },
                 onNavigateToShop = { navController.navigate("shop")}
             )
@@ -42,6 +49,7 @@ fun AppNavigation(modifier: Modifier = Modifier) {
             CreateTaskScreen(
                 onTaskCreated = { newTask ->
                     tasks.add(newTask)
+                    dataManager.saveTasks(tasks)
                     navController.popBackStack()
                 },
                 onCancel = { navController.popBackStack() }
@@ -59,11 +67,13 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                         val index = tasks.indexOfFirst { it.id == taskId }
                         if (index != -1) {
                             tasks[index] = tasks[index].copy(title = newTitle, description = newDescription)
+                            dataManager.saveTasks(tasks)
                         }
                         navController.popBackStack()
                     },
                     onDeleteTask = {
                         tasks.removeAll { it.id == taskId }
+                        dataManager.saveTasks(tasks)
                         navController.popBackStack()
                     },
                     onCancel = { navController.popBackStack() }
@@ -78,6 +88,7 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                 onBuyItem = {item ->
                     if (flowCoins >= item.price){
                         flowCoins -= item.price
+                        dataManager.saveFlowCoins(flowCoins)
                         //TODO
 
                     }
