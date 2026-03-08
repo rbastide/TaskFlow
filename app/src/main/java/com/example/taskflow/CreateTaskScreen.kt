@@ -27,6 +27,24 @@ class DateVisualTransformation : VisualTransformation {
     }
 }
 
+class TimeVisualTransformation : VisualTransformation {
+    override fun filter(text: AnnotatedString): TransformedText {
+        val trimmed = if (text.text.length >= 4) text.text.substring(0..3) else text.text
+        var out = ""
+        for (i in trimmed.indices) {
+            out += trimmed[i]
+            if (i == 1) out += ":"
+        }
+        val offsetTranslator = object : OffsetMapping {
+            override fun originalToTransformed(offset: Int): Int =
+                if (offset <= 1) offset else if (offset <= 4) offset + 1 else 5
+            override fun transformedToOriginal(offset: Int): Int =
+                if (offset <= 2) offset else if (offset <= 5) offset - 1 else 4
+        }
+        return TransformedText(AnnotatedString(out), offsetTranslator)
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateTaskScreen(onTaskCreated: (Task) -> Unit, onCancel: () -> Unit) {
@@ -69,7 +87,14 @@ fun CreateTaskScreen(onTaskCreated: (Task) -> Unit, onCancel: () -> Unit) {
                     value = dueDate, onValueChange = { if (it.length <= 8 && it.all { char -> char.isDigit() }) dueDate = it }, label = { Text("Date (JJMMAAAA)") }, modifier = Modifier.weight(1f), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), visualTransformation = DateVisualTransformation()
                 )
                 OutlinedTextField(
-                    value = dueTime, onValueChange = { if (it.all { char -> char.isDigit() }) dueTime = it }, label = { Text("Heure") }, modifier = Modifier.weight(1f), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    value = dueTime,
+                    onValueChange = {
+                        if (it.length <= 4 && it.all { char -> char.isDigit() }) dueTime = it
+                    },
+                    label = { Text("Heure (HHMM)") },
+                    modifier = Modifier.weight(1f),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    visualTransformation = TimeVisualTransformation()
                 )
             }
 
