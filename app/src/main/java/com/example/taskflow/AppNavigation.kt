@@ -51,6 +51,10 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                         }
                         navController.popBackStack()
                     },
+                    onDeleteTask = {
+                        tasks.removeAll { it.id == taskId }
+                        navController.popBackStack()
+                    },
                     onCancel = { navController.popBackStack() }
                 )
             }
