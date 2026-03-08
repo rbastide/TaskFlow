@@ -8,5 +8,6 @@ data class Task(
     val isDone: Boolean = false,
     val priority: String = "Moyenne",
     val dueDate: String = "",
-    val dueTime: String = ""
+    val dueTime: String = "",
+    val periodicity: String = "Aucune"
 )

@@ -23,6 +23,9 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                     if (index != -1) {
                         tasks[index] = tasks[index].copy(isDone = isChecked)
                     }
+                },
+                onPurgeTasks = {
+                    tasks.removeAll { it.isDone }
                 }
             )
         }
