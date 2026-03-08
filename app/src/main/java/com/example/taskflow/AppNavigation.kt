@@ -5,28 +5,36 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.flow.flow
 
 @Composable
 fun AppNavigation(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     val tasks = remember { mutableStateListOf<Task>() }
 
+    var flowCoins by remember { mutableStateOf(50) }
+
     NavHost(navController = navController, startDestination = "taskList", modifier = modifier) {
 
         composable("taskList") {
             TaskListScreen(
                 tasks = tasks,
+                flowCoinsBalance = flowCoins,
                 onCreateTaskClick = { navController.navigate("createTask") },
                 onEditTaskClick = { task -> navController.navigate("editTask/${task.id}") },
                 onTaskCheckedChange = { task, isChecked ->
                     val index = tasks.indexOfFirst { it.id == task.id }
                     if (index != -1) {
                         tasks[index] = tasks[index].copy(isDone = isChecked)
+                        if (isChecked) {
+                            flowCoins += 10
+                        }
                     }
                 },
                 onPurgeTasks = {
                     tasks.removeAll { it.isDone }
-                }
+                },
+                onNavigateToShop = { navController.navigate("shop")}
             )
         }
 
@@ -61,6 +69,20 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                     onCancel = { navController.popBackStack() }
                 )
             }
+        }
+
+        composable("shop"){
+            ShopScreen(
+                flowCoinsBalance = flowCoins,
+                onBack = {navController.popBackStack()},
+                onBuyItem = {item ->
+                    if (flowCoins >= item.price){
+                        flowCoins -= item.price
+                        //TODO
+
+                    }
+                }
+            )
         }
     }
 }

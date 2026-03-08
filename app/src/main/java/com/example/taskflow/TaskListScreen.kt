@@ -19,10 +19,12 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun TaskListScreen(
     tasks: List<Task>,
+    flowCoinsBalance: Int,
     onCreateTaskClick: () -> Unit,
     onEditTaskClick: (Task) -> Unit,
     onTaskCheckedChange: (Task, Boolean) -> Unit,
-    onPurgeTasks: () -> Unit
+    onPurgeTasks: () -> Unit,
+    onNavigateToShop: () -> Unit
 ) {
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("Toutes", "À faire", "En retard", "Validées")
@@ -47,6 +49,14 @@ fun TaskListScreen(
                     title = { Text("My Todo List", color = MaterialTheme.colorScheme.onPrimary) },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
                     actions = {
+                        TextButton(onClick = onNavigateToShop) {
+                            Text(
+                                text = "⭐ $flowCoinsBalance",
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        }
+
                         IconButton(onClick = onPurgeTasks) {
                             Icon(Icons.Filled.Delete, contentDescription = "Purger", tint = MaterialTheme.colorScheme.onPrimary)
                         }
