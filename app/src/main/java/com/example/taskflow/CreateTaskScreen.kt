@@ -1,5 +1,8 @@
 package com.example.taskflow
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -53,6 +56,8 @@ fun CreateTaskScreen(onTaskCreated: (Task) -> Unit, onCancel: () -> Unit) {
     var dueDate by remember { mutableStateOf("") }
     var dueTime by remember { mutableStateOf("") }
 
+    var selectedImageUri by remember {mutableStateOf<String?>(null)}
+
     val priorityOptions = listOf("Faible", "Moyenne", "Élevée")
     var expandedPriority by remember { mutableStateOf(false) }
     var priority by remember { mutableStateOf(priorityOptions[1]) }
@@ -60,6 +65,12 @@ fun CreateTaskScreen(onTaskCreated: (Task) -> Unit, onCancel: () -> Unit) {
     val periodicityOptions = listOf("Aucune", "Quotidienne", "Hebdomadaire", "Mensuelle", "Annuelle")
     var expandedPeriodicity by remember { mutableStateOf(false) }
     var periodicity by remember { mutableStateOf(periodicityOptions[0]) }
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            selectedImageUri = uri?.toString()
+        }
+    )
 
     Scaffold(
         topBar = {
@@ -124,8 +135,13 @@ fun CreateTaskScreen(onTaskCreated: (Task) -> Unit, onCancel: () -> Unit) {
                 }
             }
 
-            OutlinedButton(onClick = { }, modifier = Modifier.fillMaxWidth()) {
-                Text("📷 Joindre une image")
+            OutlinedButton(
+                onClick = {
+                    photoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(if (selectedImageUri != null) "✅ Image jointe (Modifier)" else "📷 Joindre une image")
             }
 
             Spacer(modifier = Modifier.weight(1f))

@@ -9,5 +9,6 @@ data class Task(
     val priority: String = "Moyenne",
     val dueDate: String = "",
     val dueTime: String = "",
-    val periodicity: String = "Aucune"
+    val periodicity: String = "Aucune",
+    val imageUri: String? = null
 )
