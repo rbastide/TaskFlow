@@ -24,7 +24,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import androidx.compose.ui.platform.LocalContext
-
+import android.content.Intent
 class DateVisualTransformation : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
         val trimmed = if (text.text.length >= 8) text.text.substring(0..7) else text.text
@@ -71,7 +71,7 @@ fun CreateTaskScreen(onTaskCreated: (Task) -> Unit, onCancel: () -> Unit) {
     var dueTime by remember { mutableStateOf("") }
 
     var selectedImageUri by remember {mutableStateOf<String?>(null)}
-    var cameraUri by remember { mutableStateOf<Uri?>(null) }
+    var currentPhotoPath by remember { mutableStateOf<String?>(null) }
 
     val priorityOptions = listOf("Faible", "Moyenne", "Élevée")
     var expandedPriority by remember { mutableStateOf(false) }
@@ -83,15 +83,20 @@ fun CreateTaskScreen(onTaskCreated: (Task) -> Unit, onCancel: () -> Unit) {
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { uri ->
-            selectedImageUri = uri?.toString()
+            if (uri != null) {
+                val flag = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                context.contentResolver.takePersistableUriPermission(uri, flag)
+
+                selectedImageUri = uri.toString()
+            }
         }
     )
 
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture(),
         onResult = { success ->
-            if (success && cameraUri != null) {
-                selectedImageUri = cameraUri.toString()
+            if (success && currentPhotoPath != null) {
+                selectedImageUri = Uri.fromFile(File(currentPhotoPath!!)).toString()
             }
         }
     )
@@ -159,14 +164,10 @@ fun CreateTaskScreen(onTaskCreated: (Task) -> Unit, onCancel: () -> Unit) {
                 }
             }
 
-            OutlinedButton(
-                onClick = {
-                    photoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(if (selectedImageUri != null) "✅ Image jointe (Modifier)" else "📷 Joindre une image")
+            if (selectedImageUri != null) {
+                Text("✅ Image attachée avec succès", color = MaterialTheme.colorScheme.primary)
             }
+
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(
                     onClick = { photoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
@@ -178,8 +179,8 @@ fun CreateTaskScreen(onTaskCreated: (Task) -> Unit, onCancel: () -> Unit) {
                 OutlinedButton(
                     onClick = {
                         val file = context.createImageFile()
+                        currentPhotoPath = file.absolutePath
                         val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
-                        cameraUri = uri
                         cameraLauncher.launch(uri)
                     },
                     modifier = Modifier.weight(1f)
@@ -190,7 +191,21 @@ fun CreateTaskScreen(onTaskCreated: (Task) -> Unit, onCancel: () -> Unit) {
 
             Spacer(modifier = Modifier.weight(1f))
             Button(
-                onClick = { if (title.isNotBlank()) onTaskCreated(Task(title = title, description = description, dueDate = dueDate, dueTime = dueTime, priority = priority, periodicity = periodicity)) },
+                onClick = {
+                    if (title.isNotBlank()) {
+                        onTaskCreated(
+                            Task(
+                                title = title,
+                                description = description,
+                                dueDate = dueDate,
+                                dueTime = dueTime,
+                                priority = priority,
+                                periodicity = periodicity,
+                                imageUri = selectedImageUri
+                            )
+                        )
+                    }
+                },
                 modifier = Modifier.fillMaxWidth(), enabled = title.isNotBlank()
             ) { Text("Enregistrer") }
         }

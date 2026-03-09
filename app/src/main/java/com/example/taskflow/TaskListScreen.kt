@@ -125,11 +125,13 @@ fun TaskListScreen(
                                 }
                             )
 
-                            if(task.imageUri!=null){
+                            if (task.imageUri != null) {
                                 AsyncImage(
-                                    model = task.imageUri,
+                                    model = android.net.Uri.parse(task.imageUri), // <-- LA MODIFICATION EST ICI
                                     contentDescription = "Miniature de la tâche",
-                                    modifier = Modifier.size(56.dp).clip(RoundedCornerShape(6.dp)),
+                                    modifier = Modifier
+                                        .size(56.dp)
+                                        .clip(RoundedCornerShape(8.dp)),
                                     contentScale = ContentScale.Crop
                                 )
                                 Spacer(modifier = Modifier.width(12.dp))
