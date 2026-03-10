@@ -12,20 +12,21 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Star
 
-data class ShopItem(val id: Int, val name: String, val price: Int, val isOwned: Boolean)
+data class ShopItem(val id: Int, val name: String, val price: Int)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShopScreen(
     flowCoinsBalance: Int,
+    purchasedItems : Set<String>,
     onBack: () -> Unit,
     onBuyItem: (ShopItem) -> Unit
 ) {
     val shopItems = listOf(
-        ShopItem(1, "Confettis", 50, true),
-        ShopItem(2, "Feu d'artifice", 150, false),
-        ShopItem(3, "Explosion dorée", 300, false),
-        ShopItem(4, "Pluie d'étoiles", 500, false)
+        ShopItem(1, "Confettis", 50),
+        ShopItem(2, "Feu d'artifice", 150),
+        ShopItem(3, "Explosion dorée", 300),
+        ShopItem(4, "Pluie d'étoiles", 500)
     )
 
     Scaffold(
@@ -66,19 +67,22 @@ fun ShopScreen(
                 .fillMaxSize()
         ) {
             items(shopItems.size) { index ->
-                ShopItemCard(item = shopItems[index], onBuyClick = { onBuyItem(shopItems[index]) })
+                val currentItem = shopItems[index]
+                val isItemOwned = purchasedItems.contains(currentItem.id.toString())
+
+                ShopItemCard(item = shopItems[index], isOwned = isItemOwned, onBuyClick = { onBuyItem(shopItems[index]) })
             }
         }
     }
 }
 
 @Composable
-fun ShopItemCard(item: ShopItem, onBuyClick: () -> Unit) {
+fun ShopItemCard(item: ShopItem, isOwned: Boolean, onBuyClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (item.isOwned) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface
+            containerColor = if (isOwned) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface
         )
     ) {
         Column(
@@ -98,7 +102,7 @@ fun ShopItemCard(item: ShopItem, onBuyClick: () -> Unit) {
             Text(text = item.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (item.isOwned) {
+            if (isOwned) {
                 OutlinedButton(onClick = { }, enabled = false, modifier = Modifier.fillMaxWidth()) {
                     Text("Possédé")
                 }

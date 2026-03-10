@@ -33,4 +33,15 @@ class DataManager(context: Context) {
     fun getFlowCoins(): Int {
         return sharedPreferences.getInt("FLOW_COINS", 50)
     }
+
+
+    fun savePurchasedItem(itemId: String) {
+        val currentItems = getPurchasedItems().toMutableSet()
+        currentItems.add(itemId)
+        sharedPreferences.edit().putStringSet("PURCHASED_ITEMS", currentItems).apply()
+    }
+
+    fun getPurchasedItems(): Set<String> {
+        return sharedPreferences.getStringSet("PURCHASED_ITEMS", emptySet()) ?: emptySet()
+    }
 }

@@ -6,7 +6,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import kotlinx.coroutines.flow.flow
 
 @Composable
 fun AppNavigation(modifier: Modifier = Modifier) {
@@ -17,6 +16,8 @@ fun AppNavigation(modifier: Modifier = Modifier) {
 
     val tasks = remember { mutableStateListOf<Task>().apply { addAll(dataManager.getTasks())}}
     var flowCoins by remember { mutableStateOf(dataManager.getFlowCoins()) }
+
+    var purchasedItems by remember { mutableStateOf(dataManager.getPurchasedItems()) }
 
     NavHost(navController = navController, startDestination = "taskList", modifier = modifier) {
 
@@ -84,12 +85,15 @@ fun AppNavigation(modifier: Modifier = Modifier) {
         composable("shop"){
             ShopScreen(
                 flowCoinsBalance = flowCoins,
+                purchasedItems = purchasedItems,
                 onBack = {navController.popBackStack()},
                 onBuyItem = {item ->
                     if (flowCoins >= item.price){
                         flowCoins -= item.price
                         dataManager.saveFlowCoins(flowCoins)
-                        //TODO
+
+                        dataManager.savePurchasedItem(item.id.toString())
+                        purchasedItems = dataManager.getPurchasedItems()
 
                     }
                 }
