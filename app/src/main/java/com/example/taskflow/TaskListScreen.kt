@@ -22,6 +22,28 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
+
+fun isTaskLate(dueDateStr: String): Boolean {
+    if (dueDateStr.length != 8) return false
+
+    return try {
+        val taskYear = dueDateStr.substring(4, 8)
+        val taskMonth = dueDateStr.substring(2, 4)
+        val taskDay = dueDateStr.substring(0, 2)
+        val taskDateInt = "$taskYear$taskMonth$taskDay".toInt()
+
+        val sdf = SimpleDateFormat("yyyyMMdd", Locale.getDefault())
+        val todayInt = sdf.format(Date()).toInt()
+
+        taskDateInt < todayInt
+    } catch (e: Exception) {
+        false
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,7 +67,7 @@ fun TaskListScreen(
     val filteredTasks = tasks.filter { task ->
         when (selectedTabIndex) {
             1 -> !task.isDone
-            2 -> !task.isDone && task.dueDate.isNotBlank()
+            2 -> !task.isDone && isTaskLate(task.dueDate)
             3 -> task.isDone
             else -> true
         }
@@ -80,7 +102,7 @@ fun TaskListScreen(
                                 val count = when(index) {
                                     0 -> tasks.size
                                     1 -> tasks.count { !it.isDone }
-                                    2 -> tasks.count { !it.isDone && it.dueDate.isNotBlank() }
+                                    2 -> tasks.count { !it.isDone && isTaskLate(it.dueDate) }
                                     3 -> tasks.count { it.isDone }
                                     else -> 0
                                 }
@@ -105,7 +127,7 @@ fun TaskListScreen(
         } else {
             LazyColumn(modifier = Modifier.fillMaxSize().padding(paddingValues), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(filteredTasks) { task ->
-                    val isLate = !task.isDone && task.dueDate.isNotBlank()
+                    val isLate = !task.isDone && isTaskLate(task.dueDate)
                     var showClassicDialog by remember { mutableStateOf(false) }
                     var activeCelebrationId by remember { mutableStateOf<String?>(null) }
 
