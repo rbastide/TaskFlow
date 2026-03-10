@@ -61,6 +61,29 @@ fun Context.createImageFile(): File {
     return File.createTempFile("JPEG_${timeStamp}_", ".jpg", externalCacheDir)
 }
 
+fun isValidDate(dateStr: String): Boolean {
+    if (dateStr.isEmpty()) return true
+    if (dateStr.length != 8) return false
+    return try {
+        val sdf = java.text.SimpleDateFormat("ddMMyyyy", java.util.Locale.getDefault())
+        sdf.isLenient = false
+        sdf.parse(dateStr) != null
+    } catch (e: Exception) {
+        false
+    }
+}
+
+fun isValidTime(timeStr: String): Boolean {
+    if (timeStr.isEmpty()) return true
+    if (timeStr.length != 4) return false
+    val h = timeStr.substring(0, 2).toIntOrNull() ?: return false
+    val m = timeStr.substring(2, 4).toIntOrNull() ?: return false
+    return h in 0..23 && m in 0..59
+}
+
+
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateTaskScreen(onTaskCreated: (Task) -> Unit, onCancel: () -> Unit) {
@@ -69,6 +92,8 @@ fun CreateTaskScreen(onTaskCreated: (Task) -> Unit, onCancel: () -> Unit) {
     var description by remember { mutableStateOf("") }
     var dueDate by remember { mutableStateOf("") }
     var dueTime by remember { mutableStateOf("") }
+    val isDateValid = isValidDate(dueDate)
+    val isTimeValid = isValidTime(dueTime)
 
     var selectedImageUri by remember {mutableStateOf<String?>(null)}
     var currentPhotoPath by remember { mutableStateOf<String?>(null) }
@@ -124,7 +149,13 @@ fun CreateTaskScreen(onTaskCreated: (Task) -> Unit, onCancel: () -> Unit) {
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
-                    value = dueDate, onValueChange = { if (it.length <= 8 && it.all { char -> char.isDigit() }) dueDate = it }, label = { Text("Date (JJMMAAAA)") }, modifier = Modifier.weight(1f), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), visualTransformation = DateVisualTransformation()
+                    value = dueDate,
+                    onValueChange = { if (it.length <= 8 && it.all { char -> char.isDigit() }) dueDate = it },
+                    label = { Text("Date (JJMMAAAA)") },
+                    modifier = Modifier.weight(1f),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    visualTransformation = DateVisualTransformation(),
+                    isError = dueDate.isNotEmpty() && !isDateValid
                 )
                 OutlinedTextField(
                     value = dueTime,
@@ -134,7 +165,9 @@ fun CreateTaskScreen(onTaskCreated: (Task) -> Unit, onCancel: () -> Unit) {
                     label = { Text("Heure (HHMM)") },
                     modifier = Modifier.weight(1f),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    visualTransformation = TimeVisualTransformation()
+                    visualTransformation = TimeVisualTransformation(),
+                    isError = dueTime.isNotEmpty() && !isTimeValid
+
                 )
             }
 
@@ -206,7 +239,8 @@ fun CreateTaskScreen(onTaskCreated: (Task) -> Unit, onCancel: () -> Unit) {
                         )
                     }
                 },
-                modifier = Modifier.fillMaxWidth(), enabled = title.isNotBlank()
+                modifier = Modifier.fillMaxWidth(),
+                enabled = title.isNotBlank() && isDateValid && isTimeValid
             ) { Text("Enregistrer") }
         }
     }
