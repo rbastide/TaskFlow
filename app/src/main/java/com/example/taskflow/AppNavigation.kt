@@ -31,10 +31,15 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                 onTaskCheckedChange = { task, isChecked ->
                     val index = tasks.indexOfFirst { it.id == task.id }
                     if (index != -1) {
-                        tasks[index] = tasks[index].copy(isDone = isChecked)
-                        dataManager.saveTasks(tasks)
-                        if (isChecked) {
-                            flowCoins += 10
+                        if (tasks[index].isDone != isChecked) {
+                            tasks[index] = tasks[index].copy(isDone = isChecked)
+                            dataManager.saveTasks(tasks)
+
+                            if (isChecked) {
+                                flowCoins += 10
+                            } else {
+                                flowCoins = maxOf(0,flowCoins - 10)
+                            }
                             dataManager.saveFlowCoins(flowCoins)
                         }
                     }
