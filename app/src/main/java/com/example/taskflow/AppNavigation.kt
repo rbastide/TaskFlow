@@ -25,6 +25,7 @@ fun AppNavigation(modifier: Modifier = Modifier) {
             TaskListScreen(
                 tasks = tasks,
                 flowCoinsBalance = flowCoins,
+                purchasedItems = purchasedItems,
                 onCreateTaskClick = { navController.navigate("createTask") },
                 onEditTaskClick = { task -> navController.navigate("editTask/${task.id}") },
                 onTaskCheckedChange = { task, isChecked ->

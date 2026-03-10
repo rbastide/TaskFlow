@@ -15,8 +15,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -24,6 +28,7 @@ import coil.compose.AsyncImage
 fun TaskListScreen(
     tasks: List<Task>,
     flowCoinsBalance: Int,
+    purchasedItems: Set<String>,
     onCreateTaskClick: () -> Unit,
     onEditTaskClick: (Task) -> Unit,
     onTaskCheckedChange: (Task, Boolean) -> Unit,
@@ -34,6 +39,8 @@ fun TaskListScreen(
     val tabs = listOf("Toutes", "À faire", "En retard", "Validées")
 
     val priorityWeight = mapOf("Élevée" to 3, "Moyenne" to 2, "Faible" to 1)
+
+    val ownedAnimations = purchasedItems.filter { it in listOf("1", "2", "3", "4") }
 
     val filteredTasks = tasks.filter { task ->
         when (selectedTabIndex) {
@@ -101,15 +108,49 @@ fun TaskListScreen(
             LazyColumn(modifier = Modifier.fillMaxSize().padding(paddingValues), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(filteredTasks) { task ->
                     val isLate = !task.isDone && task.dueDate.isNotBlank()
-                    var showDialog by remember { mutableStateOf(false) }
+                    var showClassicDialog by remember { mutableStateOf(false) }
+                    var activeCelebrationId by remember { mutableStateOf<String?>(null) }
 
-                    if (showDialog) {
+                    if (showClassicDialog) {
                         AlertDialog(
-                            onDismissRequest = { showDialog = false },
-                            title = { Text("🎉 Bien joué !") },
-                            text = { Text("Tâche accomplie avec succès") },
-                            confirmButton = { Button(onClick = { showDialog = false }) { Text("Continuer") } }
+                            onDismissRequest = { showClassicDialog = false },
+                            title = { Text("Bien joué !") },
+                            text = { Text("Tâche accomplie avec succès.") },
+                            confirmButton = { Button(onClick = { showClassicDialog = false }) { Text("Continuer") } }
                         )
+                    }
+
+                    if (activeCelebrationId != null) {
+                        val (emojis, title, message) = when (activeCelebrationId) {
+                            "1" -> Triple("🎉✨🎊", "Félicitations !", "Pluie de confettis activée !")
+                            "2" -> Triple("🎆🎇🚀", "BOUM !", "Feu d'artifice impressionnant !")
+                            "3" -> Triple("🌟👑💰", "Incroyable !", "Explosion dorée magnifique !")
+                            "4" -> Triple("🌠🌌💫", "Magique !", "Pluie d'étoiles filantes !")
+                            else -> Triple("✅", "Bravo !", "Tâche terminée.")
+                        }
+
+                        Dialog(onDismissRequest = { activeCelebrationId = null }) {
+                            Surface(
+                                shape = RoundedCornerShape(16.dp),
+                                color = MaterialTheme.colorScheme.primaryContainer,
+                                modifier = Modifier.padding(16.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(24.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(emojis, fontSize = 64.sp)
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    Text(title, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text(message, textAlign = TextAlign.Center)
+                                    Spacer(modifier = Modifier.height(24.dp))
+                                    Button(onClick = { activeCelebrationId = null }) {
+                                        Text("Super !")
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     Card(
@@ -121,7 +162,13 @@ fun TaskListScreen(
                                 checked = task.isDone,
                                 onCheckedChange = { isChecked ->
                                     onTaskCheckedChange(task, isChecked)
-                                    if (isChecked) showDialog = true
+                                    if (isChecked) {
+                                        if(ownedAnimations.isNotEmpty()){
+                                            activeCelebrationId = ownedAnimations.random()
+                                        } else{
+                                            showClassicDialog = true
+                                        }
+                                    }
                                 }
                             )
 
