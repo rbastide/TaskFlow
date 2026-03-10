@@ -68,9 +68,7 @@ fun TaskListScreen(
                             )
                         }
 
-                        IconButton(onClick = onPurgeTasks) {
-                            Icon(Icons.Filled.Delete, contentDescription = "Purger", tint = MaterialTheme.colorScheme.onPrimary)
-                        }
+
                     }
                 )
                 TabRow(selectedTabIndex = selectedTabIndex) {
