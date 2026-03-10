@@ -191,8 +191,14 @@ fun TaskListScreen(
                                 }
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 4.dp)) {
                                     if (isLate) {
+                                        val formattedDate = if (task.dueDate.length == 8) {
+                                            "${task.dueDate.substring(0, 2)}/${task.dueDate.substring(2, 4)}/${task.dueDate.substring(4, 8)}"
+                                        } else {
+                                            task.dueDate
+                                        }
+
                                         Surface(color = Color(0xFFFFEBEE), shape = MaterialTheme.shapes.small) {
-                                            Text("⏰ ${task.dueDate}", color = Color.Red, modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp), style = MaterialTheme.typography.labelSmall)
+                                            Text("⏰ ${formattedDate}", color = Color.Red, modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp), style = MaterialTheme.typography.labelSmall)
                                         }
                                     }
                                     Surface(color = MaterialTheme.colorScheme.secondaryContainer, shape = MaterialTheme.shapes.small) {
