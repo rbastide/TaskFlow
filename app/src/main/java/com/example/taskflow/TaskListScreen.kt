@@ -49,6 +49,8 @@ fun isTaskLate(dueDateStr: String): Boolean {
     }
 }
 
+private const val taskValidate = "Tache validé avec succès !"
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskListScreen(
@@ -274,11 +276,11 @@ fun TaskListScreen(
 
             if (activeCelebrationId != null) {
                 val (emojis, title, message) = when (activeCelebrationId) {
-                    "1" -> Triple("🎉✨🎊", "Félicitations !", "Pluie de confettis activée !")
-                    "2" -> Triple("🎆🎇🚀", "BOUM !", "Feu d'artifice impressionnant !")
-                    "3" -> Triple("🌟👑💰", "Incroyable !", "Explosion dorée magnifique !")
-                    "4" -> Triple("🌠🌌💫", "Magique !", "Pluie d'étoiles filantes !")
-                    else -> Triple("✅", "Bravo !", "Tâche terminée.")
+                    "1" -> Triple("🎉✨🎊", "Félicitations !", taskValidate)
+                    "2" -> Triple("🎆🎇🚀", "BOUM !", taskValidate)
+                    "3" -> Triple("🌟👑💰", "Incroyable !", taskValidate)
+                    "4" -> Triple("🌠🌌💫", "Magique !", taskValidate)
+                    else -> Triple("✅", "Bravo !", taskValidate)
                 }
 
                 CelebrationOverlay(celebrationId = activeCelebrationId!!)
