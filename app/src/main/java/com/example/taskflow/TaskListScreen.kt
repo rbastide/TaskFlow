@@ -360,7 +360,7 @@ fun CelebrationOverlay(celebrationId: String) {
         isAnimating = true
     }
 
-    if (isAnimating) {
+
         particles.forEach { particle ->
             val animatedY by animateFloatAsState(
                 targetValue = if (isAnimating) particle.targetY else particle.initialY,
@@ -379,4 +379,3 @@ fun CelebrationOverlay(celebrationId: String) {
             )
         }
     }
-}
