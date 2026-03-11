@@ -203,7 +203,7 @@ fun TaskListScreen(
                                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                                         modifier = Modifier.padding(top = 4.dp)
                                     ) {
-                                        if (isLate) {
+                                        if (task.dueDate.isNotEmpty()) {
                                             val formattedDate = if (task.dueDate.length == 8) {
                                                 "${task.dueDate.substring(0, 2)}/${task.dueDate.substring(2, 4)}/${task.dueDate.substring(4, 8)}"
                                             } else {
@@ -211,12 +211,12 @@ fun TaskListScreen(
                                             }
 
                                             Surface(
-                                                color = Color(0xFFFFEBEE),
+                                                color = if (isLate) Color(0xFFFFEBEE) else MaterialTheme.colorScheme.surfaceVariant,
                                                 shape = MaterialTheme.shapes.small
                                             ) {
                                                 Text(
                                                     "⏰ $formattedDate",
-                                                    color = Color.Red,
+                                                    color = if (isLate) Color.Red else MaterialTheme.colorScheme.onSurfaceVariant,
                                                     modifier = Modifier.padding(
                                                         horizontal = 8.dp,
                                                         vertical = 2.dp
