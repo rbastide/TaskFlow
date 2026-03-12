@@ -102,31 +102,37 @@ fun ShopScreen(
                 Text("Aller dans la boutique pour débloquer des animations ! ", color = Color.Gray)
             }
         } else {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                contentPadding = PaddingValues(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier
-                    .padding(paddingValues)
-                    .fillMaxSize()
-            )  {
-                items(displayedItems.size){ index ->
-                    val currentItem = displayedItems[index]
-                    val isItemOwned = purchasedItems.contains(currentItem.id.toString())
+            if (selectedTabIndex == 0 || selectedTabIndex == 1) {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    contentPadding = PaddingValues(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    modifier = Modifier
+                        .padding(paddingValues)
+                        .fillMaxSize()
+                ) {
+                    items(displayedItems.size) { index ->
+                        val currentItem = displayedItems[index]
+                        val isItemOwned = purchasedItems.contains(currentItem.id.toString())
 
-                    ShopItemCard(
-                        item = currentItem,
-                        isOwned = isItemOwned,
-                        isCollectionTab = selectedTabIndex == 1,
-                        onBuyClick = {
-                            if (flowCoinsBalance >= currentItem.price) {
-                                onBuyItem(currentItem)
-                            } else {
-                                Toast.makeText(context, "Vous n'avez pas assez d'étoiles !", Toast.LENGTH_SHORT).show()
+                        ShopItemCard(
+                            item = currentItem,
+                            isOwned = isItemOwned,
+                            isCollectionTab = selectedTabIndex == 1,
+                            onBuyClick = {
+                                if (flowCoinsBalance >= currentItem.price) {
+                                    onBuyItem(currentItem)
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        "Vous n'avez pas assez d'étoiles !",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
 
