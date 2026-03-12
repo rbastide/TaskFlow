@@ -70,10 +70,10 @@ fun AppNavigation(modifier: Modifier = Modifier) {
             if (taskToEdit != null) {
                 EditTaskScreen(
                     task = taskToEdit,
-                    onTaskUpdated = { newTitle, newDescription ->
+                    onTaskUpdated = { updatedTask ->
                         val index = tasks.indexOfFirst { it.id == taskId }
                         if (index != -1) {
-                            tasks[index] = tasks[index].copy(title = newTitle, description = newDescription)
+                            tasks[index] = updatedTask
                             dataManager.saveTasks(tasks)
                         }
                         navController.popBackStack()
