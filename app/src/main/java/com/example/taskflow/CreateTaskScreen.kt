@@ -113,11 +113,13 @@ fun CreateTaskScreen(onTaskCreated: (Task) -> Unit, onCancel: () -> Unit) {
                 context.contentResolver.takePersistableUriPermission(uri, flag)
 
                 selectedImageUri = uri.toString()
+
             }
         }
     )
 
     val cameraLauncher = rememberLauncherForActivityResult(
+        
         contract = ActivityResultContracts.TakePicture(),
         onResult = { success ->
             if (success && currentPhotoPath != null) {
